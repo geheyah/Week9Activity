@@ -228,10 +228,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 393412eea17ff47fb99fa1e9c171d497, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 3.76
-  height: 0.7
+  width: 3.59
+  height: 0.34
   depth: 0.62
-  rectangleCenter: {x: 2.85, y: -1.79, z: 0}
+  rectangleCenter: {x: 2.92, y: -1.79, z: 0}
   rectangleRotation: {x: 0, y: 0, z: 0}
   rectangleMaterial: {fileID: 2100000, guid: b2270eb41ee894c7ca6b8eb3fa6fa0c5, type: 2}
   focalLength: 0.74
@@ -250,8 +250,8 @@ MonoBehaviour:
   radius: 2.44
   latitudeSegments: 27
   longitudeSegments: 48
-  sphereCenter: {x: -2.75, y: 1.1, z: -1.27}
-  sphereRotation: {x: 0.29, y: 0, z: -0.51}
+  sphereCenter: {x: -1.13, y: 0.91, z: 0}
+  sphereRotation: {x: 0.29, y: 0, z: 0}
   sphereMaterial: {fileID: 2100000, guid: 591f23f12ec0f4c0087942a5d427b820, type: 2}
   focalLength: 0.5
 --- !u!114 &1957024350
@@ -266,13 +266,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b8119ddfcf608b498b5d36073a96cce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  radius: 1.96
-  height: 10.48
+  radius: 2.07
+  height: 17.7
   segments: 30
-  cylinderCenter: {x: -7.38, y: -0.06, z: -1.65}
-  cylinderRotation: {x: -0.94, y: -0.43, z: -1.23}
+  cylinderCenter: {x: -2.65, y: -11.2, z: 8.74}
+  cylinderRotation: {x: 0, y: -5.95, z: 0}
   cylinderMaterial: {fileID: 2100000, guid: 37c1f312946d74bcc9916d2ee91b6fd6, type: 2}
-  focalLength: 2.2
+  focalLength: 2.42
 --- !u!114 &1957024351
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -287,7 +287,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseSize: 1.36
   height: 6.28
-  pyramidCenter: {x: -5.17, y: -4.11, z: -4.11}
+  pyramidCenter: {x: -7.05, y: 3.71, z: -4.11}
   pyramidRotation: {x: 0, y: -2.29, z: -3.54}
   pyramidMaterial: {fileID: 2100000, guid: bf1c0f2deb4534cffa8df2a96369c247, type: 2}
   focalLength: -17.11
@@ -303,9 +303,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bca7be594088e41d7bd8e11b4b58cc47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 3.46
-  height: 4.16
+  width: 2.41
+  height: 1.98
   capsuleMaterial: {fileID: 2100000, guid: d8ab624d111f44620889efcb9f60e665, type: 2}
+  segments: 36
+  position: {x: 5.2, y: 1.5, z: 0}
+  rotation: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

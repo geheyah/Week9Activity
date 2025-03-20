@@ -6,19 +6,12 @@ public class SphereGenerator : MonoBehaviour
     public int latitudeSegments = 18; 
     public int longitudeSegments = 36;
 
-    public Vector3 sphereCenter;
+    public Vector3 spherePosition;
     public Vector3 sphereRotation;
     public Material sphereMaterial;
     public float focalLength;
 
-    public Vector3 RotateBy(float angle, float axis1, float axis2)
-    {
-        float firstAxis = axis1 * Mathf.Cos(angle) - axis2 * Mathf.Sin(angle);
-        float secondAxis = axis2 * Mathf.Cos(angle) + axis1 * Mathf.Sin(angle);
-        return new Vector3(firstAxis, secondAxis, 0);
-    }
-
-    public Vector3[] GetSpherePoints()
+    public Vector3[] SpherePositioning()
     {
         Vector3[] points = new Vector3[latitudeSegments * longitudeSegments];
         int index = 0;
@@ -35,11 +28,12 @@ public class SphereGenerator : MonoBehaviour
                 float sinPhi = Mathf.Sin(phi);
                 float cosPhi = Mathf.Cos(phi);
 
-                float x = sphereCenter.x + radius * sinTheta * cosPhi;
-                float y = sphereCenter.y + radius * sinTheta * sinPhi;
-                float z = sphereCenter.z + radius * cosTheta;
+                float x = radius * sinTheta * cosPhi;
+                float y = radius * sinTheta * sinPhi;
+                float z = radius * cosTheta;
 
-                points[index++] = new Vector3(x, y, z);
+                Vector3 point = new Vector3(x, y, z);
+                points[index++] = Quaternion.Euler(sphereRotation) * point + spherePosition;
             }
         }
         return points;
@@ -57,15 +51,13 @@ public class SphereGenerator : MonoBehaviour
 
     public void DrawLines()
     {
-        if (sphereMaterial == null)
-        {
-            return;
-        }
+        if (sphereMaterial == null) return;
+
         GL.PushMatrix();
         GL.Begin(GL.LINES);
         sphereMaterial.SetPass(0);
 
-        Vector3[] points = GetSpherePoints();
+        Vector3[] points = SpherePositioning();
 
         for (int lat = 0; lat < latitudeSegments; lat++)
         {
@@ -84,7 +76,7 @@ public class SphereGenerator : MonoBehaviour
         {
             for (int lat = 0; lat < latitudeSegments - 1; lat++)
             {
-                int nextLat = (lat + 1);
+                int nextLat = lat + 1;
                 GL.Color(sphereMaterial.color);
                 Vector3 point1 = points[lat * longitudeSegments + lon];
                 Vector3 point2 = points[nextLat * longitudeSegments + lon];

@@ -6,43 +6,41 @@ public class RectangleGenerator : MonoBehaviour
     public float height = 1.0f;
     public float depth = 1.0f;
 
-    public Vector3 rectangleCenter;
-    public Vector3 rectangleRotation;
+    public Vector3 rectanglePosition = Vector3.zero;
+    public Vector3 rectangleRotation = Vector3.zero;
     public Material rectangleMaterial;
-
-    public float focalLength;
-
-    public Vector2 RotateBy(float angle, float axis1, float axis2)
-    {
-        var firstAxis = axis1 * Mathf.Cos(angle) - axis2 * Mathf.Sin(angle);
-        var secondAxis = axis2 * Mathf.Cos(angle) + axis1 * Mathf.Sin(angle);
-        return new Vector2(firstAxis, secondAxis);
-    }
 
     public Vector3[] GetFrontSquare()
     {
-        var halfWidth = width * 0.5f;
-        var halfHeight = height * 0.5f;
+        float halfWidth = width * 0.5f;
+        float halfHeight = height * 0.5f;
 
-        return new[] { 
-            new Vector3(rectangleCenter.x + halfWidth, rectangleCenter.y + halfHeight, -depth * 0.5f),
-            new Vector3(rectangleCenter.x - halfWidth, rectangleCenter.y + halfHeight, -depth * 0.5f),
-            new Vector3(rectangleCenter.x - halfWidth, rectangleCenter.y - halfHeight, -depth * 0.5f),
-            new Vector3(rectangleCenter.x + halfWidth, rectangleCenter.y - halfHeight, -depth * 0.5f),
+        return new[]
+        {
+            new Vector3(halfWidth, halfHeight, -depth * 0.5f),
+            new Vector3(-halfWidth, halfHeight, -depth * 0.5f),
+            new Vector3(-halfWidth, -halfHeight, -depth * 0.5f),
+            new Vector3(halfWidth, -halfHeight, -depth * 0.5f)
         };
     }
 
     public Vector3[] GetBackSquare()
     {
-        var halfWidth = width * 0.5f;
-        var halfHeight = height * 0.5f;
+        float halfWidth = width * 0.5f;
+        float halfHeight = height * 0.5f;
 
-        return new[] {
-            new Vector3(rectangleCenter.x + halfWidth, rectangleCenter.y + halfHeight, depth * 0.5f),
-            new Vector3(rectangleCenter.x - halfWidth, rectangleCenter.y + halfHeight, depth * 0.5f),
-            new Vector3(rectangleCenter.x - halfWidth, rectangleCenter.y - halfHeight, depth * 0.5f),
-            new Vector3(rectangleCenter.x + halfWidth, rectangleCenter.y - halfHeight, depth * 0.5f),
+        return new[]
+        {
+            new Vector3(halfWidth, halfHeight, depth * 0.5f),
+            new Vector3(-halfWidth, halfHeight, depth * 0.5f),
+            new Vector3(-halfWidth, -halfHeight, depth * 0.5f),
+            new Vector3(halfWidth, -halfHeight, depth * 0.5f)
         };
+    }
+
+    public Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)
+    {
+        return Quaternion.Euler(angles) * (point - pivot) + pivot;
     }
 
     private void OnPostRender()
@@ -57,64 +55,55 @@ public class RectangleGenerator : MonoBehaviour
 
     public void DrawLines()
     {
-        if(rectangleMaterial == null)
-        {
-            return;
-        }
+        if (rectangleMaterial == null) return;
+
         GL.PushMatrix();
-        GL.Begin(GL.LINES);
         rectangleMaterial.SetPass(0);
-        
-        //shit here
-        
-        var squareVectors = GetFrontSquare();
-        var backsquareVectors = GetBackSquare();
+        GL.Begin(GL.LINES);
 
-        for (int i = 0; i < squareVectors.Length; i++)
+        // Get front and back square points
+        var frontSquare = GetFrontSquare();
+        var backSquare = GetBackSquare();
+
+        // Apply rotation and position to front and back squares
+        for (int i = 0; i < frontSquare.Length; i++)
         {
-            var deductedVector = rectangleCenter - squareVectors[i];
-            var rotatedVectors = RotateBy(rectangleRotation.z, deductedVector.x, deductedVector.y);
-            squareVectors[i] = new Vector3(rotatedVectors.x, rotatedVectors.y) + rectangleCenter;
+            frontSquare[i] = RotatePointAroundPivot(frontSquare[i], Vector3.zero, rectangleRotation);
+            frontSquare[i] += rectanglePosition;
+
+            backSquare[i] = RotatePointAroundPivot(backSquare[i], Vector3.zero, rectangleRotation);
+            backSquare[i] += rectanglePosition;
         }
 
-        // z-axis back square
-        for (int i = 0; i < backsquareVectors.Length; i++)
-        {
-            var deductedVector = rectangleCenter - backsquareVectors[i];
-            var rotatedVectors = RotateBy(rectangleRotation.z, deductedVector.x, deductedVector.y);
-            backsquareVectors[i] = new Vector3(rotatedVectors.x, rotatedVectors.y) + rectangleCenter;
-        }
-
-        var frontScale = focalLength / ((rectangleCenter.z - depth * 0.5f) + focalLength);
-        for (int i = 0; i < squareVectors.Length; i++) 
+        // Draw front square
+        for (int i = 0; i < frontSquare.Length; i++)
         {
             GL.Color(rectangleMaterial.color);
-            var point1 = squareVectors[i] * frontScale;
-            GL.Vertex3(point1.x, point1.y, 0);
-            var point2 = squareVectors[(i + 1) % squareVectors.Length] * frontScale;
-            GL.Vertex3(point2.x, point2.y, 0);
+            var point1 = frontSquare[i];
+            var point2 = frontSquare[(i + 1) % frontSquare.Length];
+
+            GL.Vertex3(point1.x, point1.y, point1.z);
+            GL.Vertex3(point2.x, point2.y, point2.z);
         }
 
-        var backScale = focalLength / ((rectangleCenter.z + depth * 0.5f) + focalLength);
-        for (int i = 0; i < backsquareVectors.Length; i++)
+        // Draw back square
+        for (int i = 0; i < backSquare.Length; i++)
         {
             GL.Color(rectangleMaterial.color);
-            var point1 = backsquareVectors[i] * backScale;
-            GL.Vertex3(point1.x, point1.y, 0);
-            var point2 = backsquareVectors[(i + 1) % squareVectors.Length] * backScale;
-            GL.Vertex3(point2.x, point2.y, 0);
+            var point1 = backSquare[i];
+            var point2 = backSquare[(i + 1) % backSquare.Length];
+
+            GL.Vertex3(point1.x, point1.y, point1.z);
+            GL.Vertex3(point2.x, point2.y, point2.z);
         }
 
-        for (int i = 0; i < backsquareVectors.Length; i++)
+        // Draw lines connecting front and back squares
+        for (int i = 0; i < frontSquare.Length; i++)
         {
             GL.Color(rectangleMaterial.color);
-            var point1 = squareVectors[i] * frontScale;
-            GL.Vertex3(point1.x, point1.y, 0);
-            var point2 = backsquareVectors[i] * backScale;
-            GL.Vertex3(point2.x, point2.y, 0);
+            GL.Vertex3(frontSquare[i].x, frontSquare[i].y, frontSquare[i].z);
+            GL.Vertex3(backSquare[i].x, backSquare[i].y, backSquare[i].z);
         }
-        
-        //stop here
 
         GL.End();
         GL.PopMatrix();
